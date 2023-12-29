@@ -13,6 +13,13 @@ CRGB leds[NUM_LEDS];
 
 ESP8266WebServer server(80);
 
+void setColours(int colour){
+    for(int i = 0; i < NUM_LEDS; i++){
+        leds[i] = colour;
+    }
+    FastLED.show();
+}
+
 void handleRoot(){
     server.send(200, "text/html", html_index);
 }
@@ -20,19 +27,22 @@ void handleRoot(){
 void handleColour(){
     String colourString = server.arg("colour");
     int colour = colourString.toInt();
-    for(int i = 0; i < NUM_LEDS; i++){
-        leds[i] = colour;
-    }
-    FastLED.show();
+    setColours(colour);
 
     server.sendHeader("Location", "/", true);
     server.send(302, "text/plain", "");
 }
 
 void setup(){
-    FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
-
     Serial.begin(115200);
+    FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
+    FastLED.setBrightness(50);
+    // For some reason, this doesn't work first try
+    setColours(13172907);
+    setColours(13172907);
+    setColours(13172907);
+    setColours(13172907);
+
     Serial.println("Configuring access point...");
 
     WiFi.softAP(SSID);
