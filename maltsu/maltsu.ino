@@ -12,7 +12,7 @@ CRGB leds[NUM_LEDS];
 ESP8266WebServer server(80);
 
 void handleRoot(){
-  server.send(200, "text/html", "<h1>You are connected</h1>");
+    server.send(200, "text/html", "<h1>You are connected</h1>");
 }
 
 void handleColour(){
@@ -22,6 +22,9 @@ void handleColour(){
         leds[i] = colour;
     }
     FastLED.show();
+
+    server.sendHeader("Location", "/", true);
+    server.send(302, "text/plain", "");
 }
 
 void setup(){
