@@ -2,6 +2,8 @@
 #include <ESP8266WebServer.h>
 #include <FastLED.h>
 
+#include "html.h"
+
 #define NUM_LEDS 30
 #define LED_PIN D6
 
@@ -12,7 +14,7 @@ CRGB leds[NUM_LEDS];
 ESP8266WebServer server(80);
 
 void handleRoot(){
-    server.send(200, "text/html", "<h1>You are connected</h1>");
+    server.send(200, "text/html", html_index);
 }
 
 void handleColour(){
