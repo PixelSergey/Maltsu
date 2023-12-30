@@ -10,14 +10,35 @@
 #define SSID "Maltsu"
 
 CRGB leds[NUM_LEDS];
+int colour;
+int spacing;
 
 ESP8266WebServer server(80);
 
-void setColours(int colour){
-    for(int i = 0; i < NUM_LEDS; i++){
-        leds[i] = colour;
+void animate(){
+    static unsigned long transitionTime = 0;
+    static unsigned int state = 0;
+    unsigned long currentTime = millis();
+
+    if(currentTime >= transitionTime){
+        ++state %= spacing;
+        transitionTime = currentTime + 100;
     }
+
+    for(int i=0; i<NUM_LEDS; i++){
+        if(i % spacing == state) leds[i] = colour;
+        else leds[i] = 0;
+    }
+
     FastLED.show();
+}
+
+void setColour(int newColour){
+    colour = newColour;
+}
+
+void setSpacing(int newSpacing){
+    spacing = newSpacing;
 }
 
 void handleRoot(){
@@ -27,7 +48,7 @@ void handleRoot(){
 void handleColour(){
     String colourString = server.arg("colour");
     int colour = colourString.toInt();
-    setColours(colour);
+    setColour(colour);
 
     server.sendHeader("Location", "/", true);
     server.send(302, "text/plain", "");
@@ -37,11 +58,8 @@ void setup(){
     Serial.begin(115200);
     FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
     FastLED.setBrightness(50);
-    // For some reason, this doesn't work first try
-    setColours(13172907);
-    setColours(13172907);
-    setColours(13172907);
-    setColours(13172907);
+    setColour(13172907);
+    setSpacing(4);
 
     Serial.println("Configuring access point...");
 
@@ -59,4 +77,5 @@ void setup(){
 
 void loop(){
     server.handleClient();
+    animate();
 }
