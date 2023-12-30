@@ -12,10 +12,24 @@
 CRGB leds[NUM_LEDS];
 int colour;
 int spacing;
+int animationType;
+
+enum AnimationType {
+    STATIC,
+    SPIN,
+};
 
 ESP8266WebServer server(80);
 
-void animate(){
+void animateStatic(){
+    for(int i=0; i<NUM_LEDS; i++){
+        leds[i] = colour;
+    }
+
+    FastLED.show();
+}
+
+void animateSpin(){
     static unsigned long transitionTime = 0;
     static unsigned int state = 0;
     unsigned long currentTime = millis();
@@ -31,6 +45,22 @@ void animate(){
     }
 
     FastLED.show();
+}
+
+void animate(){
+    switch(animationType){
+        default:
+        case STATIC:
+            animateStatic();
+            break;
+        case SPIN:
+            animateSpin();
+            break;
+    }
+}
+
+void setAnimation(AnimationType newAnimation){
+    animationType = newAnimation;
 }
 
 void setColour(int newColour){
@@ -58,8 +88,9 @@ void setup(){
     Serial.begin(115200);
     FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
     FastLED.setBrightness(50);
-    setColour(13172907);
+    setColour(0xff4400);
     setSpacing(4);
+    setAnimation(SPIN);
 
     Serial.println("Configuring access point...");
 
